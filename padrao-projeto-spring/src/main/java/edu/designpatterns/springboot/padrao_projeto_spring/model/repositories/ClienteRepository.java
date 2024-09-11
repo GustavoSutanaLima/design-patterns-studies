@@ -11,7 +11,7 @@ import edu.designpatterns.springboot.padrao_projeto_spring.model.Cliente;
  * ClieteRepository é uma interface que extende da Classe CrudRepository<T, ID(T)>. CrudRepository é como se fosse um Map<T(key),T(Value)>
  * e recebe o tipo de Objeto que faz referência, neste caso Cliente e o tipo de sua chave primária. Na classe cliente, 
  * a chave primária foi definida como um long;
- * CrudRepository é uma strategy, que diz quais serão as regras de implementação da interface Crud, neste caso;
+ * CrudRepository é uma strategy, que diz quais serão as regras de implementação da interface CRUD, neste caso;
  */
     /*
     * Como essa interface já estende diretamente do CrudRepository, o Spring já entende, que ela é um repositório,

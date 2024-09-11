@@ -13,6 +13,7 @@ import jakarta.persistence.Id;
  */
 
  //Entidade para referência banco de dados
+ @Entity
 public class Endereco {
 
     @Id //Especifica a chave primária desta entidade;

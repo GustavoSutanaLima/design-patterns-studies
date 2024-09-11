@@ -17,11 +17,27 @@ import feign.Response;
 
 
 @RestController
+/*
+ * A anotação @RestController é uma combinação de duas outras anotações do Spring: @Controller e @ResponseBody. 
+ * Ela é usada para simplificar a criação de controladores que retornam dados diretamente em vez de renderizar 
+ * uma visão (como uma página HTML).
+ */
 @RequestMapping("clientes")
 public class ClienteRestController {
 
     @Autowired //clienteService é agora gerenciado pelo Spring Boot;
-    private ClienteService clienteService;
+    /*
+     * Não é possível instanciar uma interface, por isso, quando o spring rodar
+     * ele irá enteder que, quando clienteService inicializado (abaixo), ele (Spring Boot) irá instanciar
+     * a classe ClienteServiceImplementacao que implementa a interface ClienteService;
+     */
+    private ClienteService clienteService; 
+
+
+    @GetMapping("/saudacao")
+    public String saudacao() {  
+        return "Olá, mundo!";
+    }
 
     @GetMapping
     public ResponseEntity<Iterable<Cliente>> buscarTodos() { //retorna todos os ids;
@@ -29,15 +45,16 @@ public class ClienteRestController {
     }
     /*
      * @GetMapping("/{id}"): Define que o método buscarPorId
-     * deve ser chamado quando uma requisição GET é feita para uma URL que segue o padrão /{id}
+     * deve ser chamado quando uma requisição GET é feita para uma URL que segue o padrão clientes/{id}
+     * a parte clientes está no atributo da anotação RequestMapping;
      */
 
     @GetMapping("/{id}") //retorna um usário por id
-    public ResponseEntity<Cliente> buscarPorId(@PathVariable("{id}") Long id) {
+    public ResponseEntity<Cliente> buscarPorId(@PathVariable("id") Long id) {
         return ResponseEntity.ok(clienteService.buscarPorId(id));
-    }
+    }   
 
-    @PostMapping("/usuarios") //inclui usuários
+    @PostMapping() //inclui usuários
     /*
      * PostMapping("/usuarios"): Define que o método abaixo dessa anotaçao deve ser
      * chamado quando uma requisição POST é feita para a URL /usuarios.
@@ -60,7 +77,8 @@ public class ClienteRestController {
      * 
      * A anotação @RequestBody é usada para mapear o corpo da requisição HTTP para um objeto Java. 
      * Isso permite que você receba dados JSON ou XML enviados pelo cliente e os converta em objetos 
-     * Java para processamento: OU SEJA, PEGO O QUE TENHO DE INFORMAÇÃO DENTRO DE UMA URL E USO 
+     * Java para processamento: OU SEJA, PEGO O QUE TENHO DE INFORMAÇÃO DENTRO DE UMA URL (ainda não tenho
+     * 100% de certeza que é isso mesmo) E USO 
      * ESSA ANOTAÇÃO PARA CONVERTER ESSA INFORMAÇÃO (OU CORPO) EM UM OBJETO JAVA;
      */
 
@@ -70,7 +88,7 @@ public class ClienteRestController {
         return ResponseEntity.ok(cliente);
     }
 
-    @DeleteMapping("/{id}")
+    @DeleteMapping("/{id}") //A anotação @DeleteMapping é usada para remover uma informação;
     public ResponseEntity<Void> deletar(@PathVariable Long id){
         clienteService.deletar(id);
         return ResponseEntity.ok().build();
