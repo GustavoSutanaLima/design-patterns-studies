@@ -49,32 +49,13 @@ public class ClienteServiceImplementacao implements ClienteService{
         /* Antes de procurar pelo endereço em seu repositório, vamos pegar o cep do cliente, 
         * cep é o Id da entidade Endereço:
         */
-        String cep = cliente.getEndereco().getCep();
-
-        //Procurando no repositório de endereços, se já existe o Cep do cliente lá cadastrado;
-        Optional<Endereco> enderecoCliente = enderecoRepository.findById(cep); 
-        /*
-         * O Método findById do CrudRepository retorna um Optional<T>; Objetos do tipo Optional<T> possuem um
-         * método chamado .orElseGet(); Esse método recebe como argumento uma expressão lamba.
-         * () -> {return Objet<T>}
-         * Caso o Optional esteja vazio, ou seja, null algum outro objeto será retornado. Este o objeto é do
-         * tipo do Optional. Neste caso, do tipo Entedeço;
-         */
-
-        Endereco endereco = enderecoCliente.orElseGet(() -> {
-            //Usando o FeignCliente ViaCep e o metodo consultarCep(Cep cep) para retornar o endereço deste cep;
-            Endereco novoEndereco = viaCepService.consultarCep(cep);
-            //Salvando o o novo endereço do cep em questão no repositório de endereços:
-            enderecoRepository.save(novoEndereco);
-            return novoEndereco;    
-        });
-        //Setando o novo endereço para o cliente;
-        cliente.setEndereco(endereco);
+        getEndereco(cliente);
         //Salvando o cliente (com o novo endeço no repositório de clientes)
         clienteRepository.save(cliente);
         
     }
 
+    
     @Override
     public void atualizar(Long id, Cliente cliente) {
         /*
@@ -83,14 +64,16 @@ public class ClienteServiceImplementacao implements ClienteService{
          */
         Optional<Cliente> clienteNoBancoDeDados = clienteRepository.findById(id);
         /*
-         * Se clienteNoBancoDeDados está presente (ou seja se não for nulo), retorna true,
-         * caso contrário, retorna false;
-         */
+        * Se clienteNoBancoDeDados está presente (ou seja se não for nulo), retorna true,
+        * caso contrário, retorna false;
+        */
         if(clienteNoBancoDeDados.isPresent()) {
-            inserir(cliente);
+            clienteNoBancoDeDados.get().setNome(cliente.getNome());
+            getEndereco(clienteNoBancoDeDados.get());
+            clienteRepository.save(clienteNoBancoDeDados.get());
         } 
     }
-
+    
     @Override
     public void deletar(Long id) {
         //Busca no repositório de clientes se exista um cliente com este id:
@@ -100,6 +83,30 @@ public class ClienteServiceImplementacao implements ClienteService{
             //deleta o cliente do repositório de cliente pelo id;
             clienteRepository.deleteById(id);
         }
+    }
+    
+    private void getEndereco(Cliente cliente) {
+        String cep = cliente.getEndereco().getCep();
+    
+        //Procurando no repositório de endereços, se já existe o Cep do cliente lá cadastrado;
+        Optional<Endereco> enderecoCliente = enderecoRepository.findById(cep); 
+        /*
+         * O Método findById do CrudRepository retorna um Optional<T>; Objetos do tipo Optional<T> possuem um
+         * método chamado .orElseGet(); Esse método recebe como argumento uma expressão lamba.
+         * () -> {return Objet<T>}
+         * Caso o Optional esteja vazio, ou seja, null algum outro objeto será retornado. Este o objeto é do
+         * tipo do Optional. Neste caso, do tipo Entedeço;
+         */
+    
+        Endereco endereco = enderecoCliente.orElseGet(() -> {
+            //Usando o FeignCliente ViaCep e o metodo consultarCep(Cep cep) para retornar o endereço deste cep;
+            Endereco novoEndereco = viaCepService.consultarCep(cep);
+            //Salvando o o novo endereço do cep em questão no repositório de endereços:
+            enderecoRepository.save(novoEndereco);
+            return novoEndereco;    
+        });
+        //Setando o novo endereço para o cliente;
+        cliente.setEndereco(endereco);
     }
 
 }
